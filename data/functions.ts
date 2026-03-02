@@ -1,8 +1,24 @@
-export const contentData = [
+// data/functions.ts
 
-  // =====================================================
+export type FunctionItem = {
+  id: string;
+  title: string;
+  category: "Character Functions" | "Numeric Functions" | "Date Formats";
+  overview: string;
+  behavior?: string;
+  sas: string;
+  r: string;
+  details: string;
+  exampleSAS: string;
+  exampleR: string;
+  output?: string;
+  outputTable?: string;
+};
+
+// =====================================================
   // CHARACTER FUNCTIONS
   // =====================================================
+  export const contentData: FunctionItem[] = [
 
   {
   id: "strip-trimws",
@@ -1341,7 +1357,6 @@ USUBJID   ADTM
 SUBJ001   2020-01-01 10:00:00
 `
 },
-
 {
   id: "datetime19",
   category: "Date Formats",
