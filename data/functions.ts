@@ -109,7 +109,7 @@ USUBJID   AVAL   AVALC
   sas: "cat(var1,var2)",
   r: "paste0(var1,var2)",
   behavior:
-    "CAT strips blanks automatically. paste0 does not strip blanks unless handled separately.",
+    "No major difference both cat() and past0() joins strings exactly as they are stored in the variable.",
   details:
     "Used to combine variables without separators, for example USUBJID and SEX.",
 
@@ -339,7 +339,7 @@ run;
 
 data adae2;
   set adae;
-  ADT = input(substr(EGDTC, 1, 10), is8601da.);
+  ADTM = strip(substr(EGDTC, 12, 5));
 run;`,
 
   exampleR: `library(dplyr)
@@ -350,11 +350,11 @@ adae <- data.frame(
 )
 
 adae <- adae %>%
-  mutate(ADT = as.Date(substr(EGDTC, 1, 10)))`,
+  mutate(ADTM = trimws(substr(EGDTC, 12, 16)))`,
 
   outputTable: `
-USUBJID   EGDTC                   ADT
-SUBJ001   2024-01-15T10:00:00     2024-01-15
+USUBJID   EGDTC                   ADTM                                                       
+SUBJ001   2024-01-15T10:00:00     10:00                       
 `
 },
 {
@@ -447,7 +447,7 @@ SUBJ001   week_12   week-12
   sas: "tranwrd(var,'from','to')",
   r: "stringr::str_replace_all(var,'from','to')",
   behavior:
-    "SAS replaces all occurrences automatically. R requires str_replace_all from stringr.",
+    "No major difference. Both works in a same way.",
   details:
     "Used to standardize words or phrases in SDTM and ADaM datasets.",
 
@@ -946,7 +946,7 @@ SUBJ001   12.345   12.3
   sas: "log(PKVAL)",
   r: "log(PKVAL)",
   behavior:
-    "Behavior is the same. Both compute natural logarithm (base e).",
+    "Behavior is the same. Both compute natural logarithm.",
   details:
     "Used to log-transform PK concentrations prior to statistical modeling.",
 

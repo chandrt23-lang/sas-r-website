@@ -6,6 +6,9 @@ import { contentData, FunctionItem } from "../../data/functions";
 export default function FunctionsPage() {
   const [selected, setSelected] = useState<FunctionItem>(contentData[0]);
   const [search, setSearch] = useState("");
+  const [openCategory, setOpenCategory] = useState<string | null>(
+    "Character Functions"
+  );
 
   const filtered = contentData.filter((item: FunctionItem) =>
     item.title.toLowerCase().includes(search.toLowerCase())
@@ -50,36 +53,60 @@ export default function FunctionsPage() {
 
         {categories.map((cat) => (
           <div key={cat} style={{ marginBottom: "20px" }}>
-            <h4 style={{ fontWeight: "bold", marginBottom: "8px" }}>{cat}</h4>
+            
+            {/* Category Header */}
+            <div
+              onClick={() =>
+                setOpenCategory(openCategory === cat ? null : cat)
+              }
+              style={{
+                fontWeight: "bold",
+                marginBottom: "8px",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <span>{cat}</span>
+              <span>{openCategory === cat ? "▼" : "▶"}</span>
+            </div>
 
-            {filtered
-              .filter((item: FunctionItem) => item.category === cat)
-              .map((item: FunctionItem) => (
-                <div
-                  key={item.id}
-                  style={{
-                    padding: "8px",
-                    cursor: "pointer",
-                    backgroundColor:
-                      selected.id === item.id ? "#eaeaea" : "transparent",
-                    marginBottom: "4px",
-                    borderRadius: "4px"
-                  }}
-                  onClick={() => setSelected(item)}
-                >
-                  {item.title}
-                </div>
-              ))}
+            {/* Category Items */}
+            {openCategory === cat &&
+              filtered
+                .filter((item) => item.category === cat)
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: "8px",
+                      cursor: "pointer",
+                      backgroundColor:
+                        selected.id === item.id
+                          ? "#eaeaea"
+                          : "transparent",
+                      marginBottom: "4px",
+                      borderRadius: "4px"
+                    }}
+                    onClick={() => setSelected(item)}
+                  >
+                    {item.title}
+                  </div>
+                ))}
           </div>
         ))}
       </div>
 
       {/* Main Content */}
       <div style={{ flex: 1, padding: "40px", maxWidth: "1000px" }}>
+        
         <h1 style={{ fontWeight: "bold" }}>{selected.title}</h1>
 
         {/* Overview */}
-        <h3 style={{ marginTop: "30px" }}>Overview</h3>
+        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
+          Overview
+        </h3>
         <p>{selected.overview}</p>
 
         {/* Behavior Difference */}
@@ -98,11 +125,14 @@ export default function FunctionsPage() {
           </div>
         )}
 
-        {/* Syntax */}
-        <h3 style={{ marginTop: "30px" }}>Syntax Comparison</h3>
+        {/* Syntax Comparison */}
+        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
+          Syntax Comparison
+        </h3>
+
         <div style={{ display: "flex", gap: "40px" }}>
           <div style={{ flex: 1 }}>
-            <h4>SAS</h4>
+            <h4 style={{ fontWeight: "bold" }}>SAS</h4>
             <div style={{ position: "relative" }}>
               <pre style={{ background: "#f4f4f4", padding: "10px" }}>
                 {selected.sas}
@@ -122,7 +152,7 @@ export default function FunctionsPage() {
           </div>
 
           <div style={{ flex: 1 }}>
-            <h4>R</h4>
+            <h4 style={{ fontWeight: "bold" }}>R</h4>
             <div style={{ position: "relative" }}>
               <pre style={{ background: "#f4f4f4", padding: "10px" }}>
                 {selected.r}
@@ -143,21 +173,26 @@ export default function FunctionsPage() {
         </div>
 
         {/* Details */}
-        <h3 style={{ marginTop: "30px" }}>Details</h3>
+        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
+          Details
+        </h3>
         <p>{selected.details}</p>
 
         {/* Examples */}
-        <h3 style={{ marginTop: "30px" }}>Example</h3>
+        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
+          Example
+        </h3>
+
         <div style={{ display: "flex", gap: "40px" }}>
           <div style={{ flex: 1 }}>
-            <h4>SAS Example</h4>
+            <h4 style={{ fontWeight: "bold" }}>SAS Example</h4>
             <pre style={{ background: "#f4f4f4", padding: "10px" }}>
               {selected.exampleSAS}
             </pre>
           </div>
 
           <div style={{ flex: 1 }}>
-            <h4>R Example</h4>
+            <h4 style={{ fontWeight: "bold" }}>R Example</h4>
             <pre style={{ background: "#f4f4f4", padding: "10px" }}>
               {selected.exampleR}
             </pre>
@@ -165,14 +200,16 @@ export default function FunctionsPage() {
         </div>
 
         {/* Output Dataset */}
-       {selected.outputTable && (
-  <>
-    <h3 style={{ marginTop: "30px" }}>Output Dataset</h3>
-    <pre style={{ background: "#eef6ff", padding: "10px" }}>
-      {selected.outputTable}
-    </pre>
-  </>
-)}
+        {selected.outputTable && (
+          <>
+            <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
+              Output Dataset
+            </h3>
+            <pre style={{ background: "#eef6ff", padding: "10px" }}>
+              {selected.outputTable}
+            </pre>
+          </>
+        )}
 
         {/* Footer */}
         <div
