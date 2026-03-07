@@ -4,13 +4,15 @@ import { useState } from "react";
 import { contentData, FunctionItem } from "../../data/functions";
 
 export default function FunctionsPage() {
-  const [selected, setSelected] = useState<FunctionItem>(contentData[0]);
-  const [search, setSearch] = useState("");
-  const [openCategory, setOpenCategory] = useState<string | null>(
-    "Character Functions"
+  const [selected, setSelected] = useState<FunctionItem>(
+    contentData.find((item) => item.id === "strip-trimws") || contentData[0]
   );
+  const [search, setSearch] = useState("");
+  const [openCategory, setOpenCategory] = useState<string | null>("Character Functions");
 
-  const filtered = contentData.filter((item: FunctionItem) =>
+  const categories = ["Character Functions", "Numeric Functions", "Date Formats"];
+
+  const filtered = contentData.filter((item) =>
     item.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -19,77 +21,44 @@ export default function FunctionsPage() {
     alert("Copied to clipboard");
   };
 
-  const categories = [
-    "Character Functions",
-    "Numeric Functions",
-    "Date Formats"
-  ];
-
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial" }}>
-      
+    <div className="flex min-h-screen font-sans bg-background text-foreground">
       {/* Sidebar */}
       <div
-        style={{
-          width: "320px",
-          borderRight: "1px solid #eee",
-          padding: "20px",
-          background: "#fafafa"
-        }}
+        className="w-[320px] border-r border-border bg-sidebar p-6 overflow-y-auto sticky top-0 h-screen"
       >
-        <h2 style={{ fontWeight: "bold" }}>SAS ↔ R Hub</h2>
+        <h2 className="font-bold text-xl mb-6">SAS ↔ R Hub</h2>
 
         <input
           type="text"
-          placeholder="Search..."
-          style={{
-            width: "100%",
-            padding: "8px",
-            marginBottom: "20px"
-          }}
+          placeholder="Search functions..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-4 py-2.5 rounded-md border border-border bg-background text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/30 mb-6"
         />
 
         {categories.map((cat) => (
-          <div key={cat} style={{ marginBottom: "20px" }}>
-            
-            {/* Category Header */}
+          <div key={cat} className="mb-5">
             <div
-              onClick={() =>
-                setOpenCategory(openCategory === cat ? null : cat)
-              }
-              style={{
-                fontWeight: "bold",
-                marginBottom: "8px",
-                cursor: "pointer",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}
+              className="font-semibold cursor-pointer py-2 flex justify-between items-center hover:opacity-80"
+              onClick={() => setOpenCategory(openCategory === cat ? null : cat)}
             >
               <span>{cat}</span>
-              <span>{openCategory === cat ? "▼" : "▶"}</span>
+              <span className="text-lg">{openCategory === cat ? "▼" : "▶"}</span>
             </div>
 
-            {/* Category Items */}
             {openCategory === cat &&
               filtered
                 .filter((item) => item.category === cat)
                 .map((item) => (
                   <div
                     key={item.id}
-                    style={{
-                      padding: "8px",
-                      cursor: "pointer",
-                      backgroundColor:
-                        selected.id === item.id
-                          ? "#eaeaea"
-                          : "transparent",
-                      marginBottom: "4px",
-                      borderRadius: "4px"
-                    }}
                     onClick={() => setSelected(item)}
+                    className={`px-3 py-2 rounded-md cursor-pointer mb-1 transition-colors ${
+                      selected.id === item.id
+                        ? "bg-muted/30 font-medium"
+                        : "hover:bg-muted/10"
+                    }`}
                   >
                     {item.title}
                   </div>
@@ -99,131 +68,96 @@ export default function FunctionsPage() {
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, padding: "40px", maxWidth: "1000px" }}>
-        
-        <h1 style={{ fontWeight: "bold" }}>{selected.title}</h1>
+      <div className="flex-1 p-10 max-w-5xl overflow-y-auto">
+        <h1 className="text-4xl font-bold mt-0 mb-8">{selected.title}</h1>
 
         {/* Overview */}
-        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
-          Overview
-        </h3>
-        <p>{selected.overview}</p>
+        <h3 className="text-2xl mt-8 mb-3">Overview</h3>
+        <p className="leading-relaxed">{selected.overview}</p>
 
-        {/* Behavior Difference */}
+        {/* Behavior Warning */}
         {selected.behavior && (
-          <div
-            style={{
-              background: "#fff8e1",
-              padding: "15px",
-              borderLeft: "5px solid orange",
-              marginTop: "20px",
-              borderRadius: "4px"
-            }}
-          >
-            ⚠ <strong>Behavior Difference</strong>
-            <p style={{ marginTop: "5px" }}>{selected.behavior}</p>
+          <div className="bg-warning-bg border-l-4 border-warning-border p-5 my-6 rounded-md">
+            <strong className="text-warning-text block mb-2">⚠ Behavior Difference</strong>
+            <p className="text-foreground/90">{selected.behavior}</p>
           </div>
         )}
 
         {/* Syntax Comparison */}
-        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
-          Syntax Comparison
-        </h3>
+        <h3 className="text-2xl mt-10 mb-4">Syntax Comparison</h3>
 
-        <div style={{ display: "flex", gap: "40px" }}>
-          <div style={{ flex: 1 }}>
-            <h4 style={{ fontWeight: "bold" }}>SAS</h4>
-            <div style={{ position: "relative" }}>
-              <pre style={{ background: "#f4f4f4", padding: "10px" }}>
-                {selected.sas}
+        <div className="flex flex-wrap gap-8">
+          <div className="flex-1 min-w-[320px]">
+            <h4 className="text-lg mb-2">SAS</h4>
+            <div className="relative">
+              <pre className="code-block min-h-[80px]">
+                {selected.sas?.trim() || "— No SAS syntax provided —"}
               </pre>
-              <button
-                onClick={() => copyToClipboard(selected.sas)}
-                style={{
-                  position: "absolute",
-                  top: "5px",
-                  right: "5px",
-                  fontSize: "12px"
-                }}
-              >
-                Copy
-              </button>
+              {selected.sas?.trim() && (
+                <button
+                  onClick={() => copyToClipboard(selected.sas)}
+                  className="copy-btn"
+                >
+                  Copy
+                </button>
+              )}
             </div>
           </div>
 
-          <div style={{ flex: 1 }}>
-            <h4 style={{ fontWeight: "bold" }}>R</h4>
-            <div style={{ position: "relative" }}>
-              <pre style={{ background: "#f4f4f4", padding: "10px" }}>
-                {selected.r}
+          <div className="flex-1 min-w-[320px]">
+            <h4 className="text-lg mb-2">R</h4>
+            <div className="relative">
+              <pre className="code-block min-h-[80px]">
+                {selected.r?.trim() || "— No R equivalent provided —"}
               </pre>
-              <button
-                onClick={() => copyToClipboard(selected.r)}
-                style={{
-                  position: "absolute",
-                  top: "5px",
-                  right: "5px",
-                  fontSize: "12px"
-                }}
-              >
-                Copy
-              </button>
+              {selected.r?.trim() && (
+                <button
+                  onClick={() => copyToClipboard(selected.r)}
+                  className="copy-btn"
+                >
+                  Copy
+                </button>
+              )}
             </div>
           </div>
         </div>
 
         {/* Details */}
-        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
-          Details
-        </h3>
-        <p>{selected.details}</p>
+        <h3 className="text-2xl mt-10 mb-3">Details</h3>
+        <p className="leading-relaxed whitespace-pre-wrap">{selected.details}</p>
 
         {/* Examples */}
-        <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
-          Example
-        </h3>
+        <h3 className="text-2xl mt-10 mb-4">Example</h3>
 
-        <div style={{ display: "flex", gap: "40px" }}>
-          <div style={{ flex: 1 }}>
-            <h4 style={{ fontWeight: "bold" }}>SAS Example</h4>
-            <pre style={{ background: "#f4f4f4", padding: "10px" }}>
-              {selected.exampleSAS}
+        <div className="flex flex-wrap gap-8">
+          <div className="flex-1 min-w-[320px]">
+            <h4 className="text-lg mb-2">SAS Example</h4>
+            <pre className="code-block min-h-[100px]">
+              {selected.exampleSAS?.trim() || "— Example not available —"}
             </pre>
           </div>
 
-          <div style={{ flex: 1 }}>
-            <h4 style={{ fontWeight: "bold" }}>R Example</h4>
-            <pre style={{ background: "#f4f4f4", padding: "10px" }}>
-              {selected.exampleR}
+          <div className="flex-1 min-w-[320px]">
+            <h4 className="text-lg mb-2">R Example</h4>
+            <pre className="code-block min-h-[100px]">
+              {selected.exampleR?.trim() || "— Example not available —"}
             </pre>
           </div>
         </div>
 
         {/* Output Dataset */}
-        {selected.outputTable && (
+        {selected.outputTable?.trim() && (
           <>
-            <h3 style={{ marginTop: "30px", fontWeight: "bold" }}>
-              Output Dataset
-            </h3>
-            <pre style={{ background: "#eef6ff", padding: "10px" }}>
+            <h3 className="text-2xl mt-10 mb-3">Output Dataset</h3>
+            <pre className="code-block bg-blue-950/30 border-blue-800">
               {selected.outputTable}
             </pre>
           </>
         )}
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: "60px",
-            padding: "20px",
-            borderTop: "1px solid #eee",
-            fontSize: "13px",
-            color: "#666"
-          }}
-        >
-          © {new Date().getFullYear()} SAS ↔ R Hub.  
-          Educational resource for Clinical Programmers.
+        <div className="mt-20 pt-6 border-t border-border text-center text-sm text-muted">
+          © {new Date().getFullYear()} SAS ↔ R Hub — Educational resource for Clinical Programmers
         </div>
       </div>
     </div>
