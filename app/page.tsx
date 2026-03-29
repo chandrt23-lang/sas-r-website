@@ -16,28 +16,51 @@ export default function Home() {
           real-world clinical datasets examples.
         </p>
 
-        <div className="mt-8">
-          <Link href="/functions">
-            <button
-              style={{
-                padding: "14px 32px",
-                fontSize: "18px",
-                fontWeight: "bold",
-                backgroundColor: "black",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                transition: "transform 0.15s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            >
-              Explore Functions →
-            </button>
-          </Link>
-        </div>
+        <div className="mt-8 flex gap-6 justify-center flex-wrap">
+
+  <Link href="/functions">
+    <button
+      style={{
+        padding: "14px 32px",
+        fontSize: "18px",
+        fontWeight: "bold",
+        backgroundColor: "black",
+        color: "white",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        transition: "transform 0.15s ease",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+    >
+      Explore Functions →
+    </button>
+  </Link>
+
+  <Link href="/merge">
+    <button
+      style={{
+        padding: "14px 32px",
+        fontSize: "18px",
+        fontWeight: "bold",
+        backgroundColor: "black",
+        color: "white",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        transition: "transform 0.15s ease",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+    >
+      Merge / Joins →
+    </button>
+  </Link>
+
+</div>
 
         <footer className="mt-24 pt-10 text-sm text-muted-foreground border-t border-border w-full text-center">
           © {new Date().getFullYear()} SAS ↔ R Hub.

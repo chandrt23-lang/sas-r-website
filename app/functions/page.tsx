@@ -27,7 +27,9 @@ export default function FunctionsPage() {
       <div
         className="w-[320px] border-r border-border bg-sidebar p-6 overflow-y-auto sticky top-0 h-screen"
       >
-        <h2 className="font-bold text-xl mb-6">SAS ↔ R Hub</h2>
+        <a href="/" className="no-underline">
+  <h2 className="font-bold text-xl mb-6 hover:opacity-70 transition-opacity cursor-pointer">SAS ↔ R Hub</h2>
+</a>
 
         <input
           type="text"
