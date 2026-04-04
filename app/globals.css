@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
 
 @import "tailwindcss";
+
 /* ── LIGHT THEME ── */
 :root {
   --background: #ffffff;
@@ -228,7 +229,8 @@ body {
   text-transform: uppercase;
 }
 
-pre, code {
+/* ── PRE AND CODE BASE ── */
+pre {
   background: var(--code-bg);
   color: var(--code-text);
   padding: 16px;
@@ -238,6 +240,30 @@ pre, code {
   overflow-x: auto;
   margin: 0;
   border: none;
+  border-radius: 0;
+  white-space: pre;
+}
+
+code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 2px 6px;
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+/* ── CRITICAL: allow spans inside pre for syntax highlighting ── */
+pre span {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
 .code-block {
@@ -252,6 +278,7 @@ pre, code {
   border: none;
   border-radius: 0;
   width: 100%;
+  white-space: pre;
 }
 
 /* ── COPY BUTTON ── */
@@ -391,13 +418,6 @@ pre, code {
   margin-bottom: 24px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-}
-
-/* ── DIVIDER ── */
-.section-divider {
-  border: none;
-  border-top: 1px solid var(--section-divider);
-  margin: 40px 0;
 }
 
 /* ── CONCLUSION BOX ── */

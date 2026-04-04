@@ -23,7 +23,123 @@ export default function MergePage() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const CodeBlock = ({ code, lang, id }: { code: string; lang: string; id: string }) => (
+  // ── Simple syntax highlighter ──
+  const highlight = (code: string, lang: string): string => {
+    const escape = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    let escaped = escape(code);
+
+    if (lang === "SAS") {
+      // Comments
+      escaped = escaped.replace(
+        /(\/\*[\s\S]*?\*\/)/g,
+        '<span style="color:#6a9955;font-style:italic">$1</span>'
+      );
+      // Strings
+      escaped = escaped.replace(
+        /(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;)/g,
+        '<span style="color:#ce9178">$1</span>'
+      );
+      // Keywords
+      const sasKeywords = [
+        "data","run","proc","set","merge","by","if","then","else","end",
+        "output","keep","drop","rename","where","in","not","and","or",
+        "length","format","informat","label","array","do","to","until","while",
+        "retain","call","input","put","select","when","otherwise","quit",
+        "class","var","ways","types","id","tables","model","weight","freq",
+        "sort","sql","create","table","as","select","from","join","left",
+        "right","inner","full","outer","on","order","group","having","union",
+        "coalesce","case","between","distinct","insert","into","delete","update",
+        "nodupkey","nodup","options","libname","filename","title","footnote",
+        "msglevel","noprint","missing","sum","mean","std","min","max","n",
+        "median","q1","q3","ifc","cats","cat","catt","catx","strip","trim",
+        "upcase","lowcase","compress","substr","index","scan","tranwrd",
+        "input","put","intck","intnx","today","date","datepart","timepart",
+        "year","month","day","mdy","abs","int","round","ceil","floor","mod",
+        "log","exp","sqrt","yymmdd10","ddmmyy10","date9","datetime",
+      ];
+      const sasRegex = new RegExp(
+        `\\b(${sasKeywords.join("|")})\\b`,
+        "gi"
+      );
+      escaped = escaped.replace(
+        sasRegex,
+        '<span style="color:#569cd6;font-weight:500">$1</span>'
+      );
+      // Macro variables
+      escaped = escaped.replace(
+        /(%\w+|&\w+)/g,
+        '<span style="color:#c586c0">$1</span>'
+      );
+    } else {
+      // R
+      // Comments
+      escaped = escaped.replace(
+        /(#.*$)/gm,
+        '<span style="color:#6a9955;font-style:italic">$1</span>'
+      );
+      // Strings
+      escaped = escaped.replace(
+        /(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;)/g,
+        '<span style="color:#ce9178">$1</span>'
+      );
+      // Keywords
+      const rKeywords = [
+        "library","require","function","if","else","for","while","repeat",
+        "return","next","break","TRUE","FALSE","NULL","NA","Inf","NaN",
+        "in","is","as","do","try","stop","warning","message","print","cat",
+        "c","list","data.frame","tibble","vector","matrix","array",
+        "left_join","right_join","inner_join","full_join","anti_join",
+        "semi_join","cross_join","join_by","closest","between",
+        "filter","select","mutate","arrange","group_by","summarise",
+        "summarize","rename","pivot_longer","pivot_wider","bind_rows",
+        "bind_cols","distinct","slice","pull","case_when","if_else",
+        "replace_na","coalesce","n","mean","sd","median","min","max",
+        "sum","abs","round","ceiling","floor","sqrt","log","exp",
+        "as.numeric","as.character","as.Date","as.integer","as.factor",
+        "str","head","tail","dim","nrow","ncol","length","names","colnames",
+        "rownames","which","any","all","is.na","is.null","is.numeric",
+        "paste","paste0","sprintf","gsub","sub","grep","grepl","trimws",
+        "toupper","tolower","nchar","substr","strsplit","format","Sys.Date",
+        "difftime","seq","seq_len","seq_along","rep","unique","table",
+        "setdiff","intersect","union","match","which","order","sort",
+        "read.csv","write.csv","readRDS","saveRDS","library","require",
+      ];
+      const rRegex = new RegExp(
+        `\\b(${rKeywords.join("|")})\\b`,
+        "g"
+      );
+      escaped = escaped.replace(
+        rRegex,
+        '<span style="color:#569cd6;font-weight:500">$1</span>'
+      );
+      // Assignment operator
+      escaped = escaped.replace(
+        /(&lt;-)/g,
+        '<span style="color:#c586c0">$1</span>'
+      );
+      // Pipe operator
+      escaped = escaped.replace(
+        /(%&gt;%)/g,
+        '<span style="color:#c586c0">$1</span>'
+      );
+    }
+
+    return escaped;
+  };
+
+  const CodeBlock = ({
+    code,
+    lang,
+    id,
+    minHeight,
+  }: {
+    code: string;
+    lang: string;
+    id: string;
+    minHeight?: string;
+  }) => (
     <div className="code-wrapper">
       <div className="code-header">
         <div className="code-header-dots">
@@ -40,12 +156,34 @@ export default function MergePage() {
           {copied === id ? "✓ Copied" : "Copy"}
         </button>
       </div>
-      <pre className="code-block">{code.trim()}</pre>
+      <div style={{ overflowX: "auto", background: "var(--code-bg)" }}>
+        <pre
+          style={{
+            minHeight: minHeight || "auto",
+            margin: 0,
+            padding: "16px",
+            background: "var(--code-bg)",
+            color: "var(--code-text)",
+            fontFamily: "'JetBrains Mono', Consolas, Monaco, monospace",
+            fontSize: "13px",
+            lineHeight: "1.65",
+            overflowX: "auto",
+            whiteSpace: "pre",
+            border: "none",
+            borderRadius: 0,
+          }}
+          dangerouslySetInnerHTML={{ __html: highlight(code.trim(), lang) }}
+        />
+      </div>
     </div>
   );
 
   const Collapsible = ({
-    title, isOpen, onToggle, children, badge,
+    title,
+    isOpen,
+    onToggle,
+    children,
+    badge,
   }: {
     title: string;
     isOpen: boolean;
@@ -64,9 +202,14 @@ export default function MergePage() {
         </div>
         <svg
           className={`chevron ${isOpen ? "open" : ""}`}
-          width="18" height="18" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" strokeWidth="2"
-          strokeLinecap="round" strokeLinejoin="round"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
@@ -76,32 +219,60 @@ export default function MergePage() {
   );
 
   const SectionLabel = ({ text }: { text: string }) => (
-    <div style={{
-      fontSize: "11px", fontWeight: 600, color: "var(--muted)",
-      letterSpacing: "0.08em", textTransform: "uppercase" as const,
-      marginBottom: "8px",
-    }}>
+    <div
+      style={{
+        fontSize: "11px",
+        fontWeight: 600,
+        color: "var(--muted)",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase" as const,
+        marginBottom: "8px",
+      }}
+    >
       {text}
     </div>
   );
 
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--background)", color: "var(--foreground)" }}>
-
+    <div
+      className="flex min-h-screen"
+      style={{ background: "var(--background)", color: "var(--foreground)" }}
+    >
       {/* ── Sidebar ── */}
-      <div className="sidebar" style={{ width: "272px", padding: "24px 14px", overflowY: "auto", position: "sticky", top: 0, height: "100vh", flexShrink: 0 }}>
-
-        {/* Logo */}
+      <div
+        className="sidebar"
+        style={{
+          width: "272px",
+          padding: "24px 14px",
+          overflowY: "auto",
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          flexShrink: 0,
+        }}
+      >
         <a href="/" style={{ textDecoration: "none" }}>
-          <div style={{
-            marginBottom: "20px", padding: "10px 14px", borderRadius: "10px",
-            background: "var(--accent-glow)", border: "1px solid var(--accent)",
-            cursor: "pointer", transition: "all 0.2s ease",
-          }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+          <div
+            style={{
+              marginBottom: "20px",
+              padding: "10px 14px",
+              borderRadius: "10px",
+              background: "var(--accent-glow)",
+              border: "1px solid var(--accent)",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
           >
-            <div style={{ fontWeight: 700, fontSize: "15px", color: "var(--accent)", letterSpacing: "-0.01em" }}>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: "15px",
+                color: "var(--accent)",
+                letterSpacing: "-0.01em",
+              }}
+            >
               SAS ↔ R Hub
             </div>
             <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>
@@ -110,27 +281,30 @@ export default function MergePage() {
           </div>
         </a>
 
-        {/* Search */}
         <input
           type="text"
           placeholder="Search joins..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="search-input"
           style={{ marginBottom: "16px" }}
         />
 
-        {/* Nav label */}
-        <div style={{
-          fontSize: "10px", fontWeight: 600, color: "var(--muted)",
-          letterSpacing: "0.1em", textTransform: "uppercase",
-          marginBottom: "6px", paddingLeft: "12px",
-        }}>
+        <div
+          style={{
+            fontSize: "10px",
+            fontWeight: 600,
+            color: "var(--muted)",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            marginBottom: "6px",
+            paddingLeft: "12px",
+          }}
+        >
           Merge / Joins
         </div>
 
-        {/* Nav items */}
-        {filtered.map(item => (
+        {filtered.map((item) => (
           <div
             key={item.id}
             onClick={() => {
@@ -147,8 +321,14 @@ export default function MergePage() {
       </div>
 
       {/* ── Main Content ── */}
-      <div style={{ flex: 1, padding: "0 48px 60px", maxWidth: "860px", overflowY: "auto" }}>
-
+      <div
+        style={{
+          flex: 1,
+          padding: "0 48px 60px",
+          maxWidth: "860px",
+          overflowY: "auto",
+        }}
+      >
         {/* ── Sticky Title ── */}
         <div className="sticky-title">
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -197,7 +377,7 @@ export default function MergePage() {
         </div>
 
         {/* ════════════════════════════════════════
-            EXAMPLE 1 — Collapsible
+            EXAMPLE 1
         ════════════════════════════════════════ */}
         <Collapsible
           title={selected.example1Title || "Example"}
@@ -250,7 +430,7 @@ export default function MergePage() {
         </Collapsible>
 
         {/* ════════════════════════════════════════
-            EXAMPLE 2 — Collapsible
+            EXAMPLE 2
         ════════════════════════════════════════ */}
         {selected.example2Title && (
           <Collapsible
@@ -309,7 +489,7 @@ export default function MergePage() {
         )}
 
         {/* ════════════════════════════════════════
-            WATCH OUT — Collapsible
+            WATCH OUT
         ════════════════════════════════════════ */}
         {selected.watchOut && (
           <Collapsible
@@ -318,7 +498,6 @@ export default function MergePage() {
             onToggle={() => setWatchOutOpen(!watchOutOpen)}
             badge="⚠ Common Pitfall"
           >
-            {/* SAS Section */}
             <div style={{ marginBottom: "28px" }}>
               <h4 style={{ fontSize: "14px", fontWeight: 600, color: "var(--watchout-text)", marginBottom: "12px", marginTop: 0 }}>
                 SAS — Silent Variable Overwrite
@@ -353,7 +532,6 @@ export default function MergePage() {
               </div>
             </div>
 
-            {/* R Section */}
             <div style={{ marginBottom: "24px" }}>
               <h4 style={{ fontSize: "14px", fontWeight: 600, color: "var(--watchout-text)", marginBottom: "12px", marginTop: 0 }}>
                 R — Unexpected .x and .y Suffix Clash
@@ -381,7 +559,6 @@ export default function MergePage() {
               </div>
             </div>
 
-            {/* Key Takeaway */}
             <div className="conclusion-box">
               <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.9, whiteSpace: "pre-wrap" }}>
                 {`Key Takeaway:\n• Always keep only the required variables before merging in both SAS and R\n• In SAS — use KEEP= option in the MERGE statement to select only needed variables\n• In R — use select() before passing datasets into any join function\n• In SAS — use OPTIONS MSGLEVEL=I to catch silent variable overwrites in the log\n• In R — watch for unexpected .x and .y suffixes in your output column names\n• This best practice applies to all join types — Full Join, Left Join, Right Join and Inner Join`}
@@ -402,7 +579,6 @@ export default function MergePage() {
           </div>
         )}
 
-        {/* ── Footer ── */}
         <div className="footer">
           © {new Date().getFullYear()} SAS ↔ R Hub — Educational resource for Clinical Programmers
         </div>
