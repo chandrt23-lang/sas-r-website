@@ -66,15 +66,65 @@ export default function Home() {
               Functions
             </button>
           </Link>
+          <Link href="/proc-steps" style={{ textDecoration: "none" }}>
+            <button
+              style={{
+                padding: "7px 18px",
+                fontSize: "13px",
+                fontWeight: 500,
+                background: "transparent",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = "var(--border)";
+                e.currentTarget.style.color = "var(--foreground)";
+              }}
+            >
+              Proc Steps
+            </button>
+          </Link>
+          <Link href="/data-step" style={{ textDecoration: "none" }}>
+          <button
+            style={{
+              padding: "7px 18px",
+              fontSize: "13px",
+              fontWeight: 500,
+              background: "transparent",
+              color: "var(--foreground)",
+              border: "1px solid var(--border)",
+              borderRadius: "8px",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.color = "var(--accent)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = "var(--border)";
+              e.currentTarget.style.color = "var(--foreground)";
+            }}
+          >
+            Data Step
+          </button>
+        </Link>
           <Link href="/merge" style={{ textDecoration: "none" }}>
             <button
               style={{
                 padding: "7px 18px",
                 fontSize: "13px",
                 fontWeight: 500,
-                background: "var(--accent)",
-                color: "white",
-                border: "1px solid var(--accent)",
+                background: "transparent",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
                 borderRadius: "8px",
                 cursor: "pointer",
                 transition: "all 0.15s ease",
@@ -156,33 +206,33 @@ export default function Home() {
         {/* CTA Buttons */}
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/merge" style={{ textDecoration: "none" }}>
-  <button
-    style={{
-      padding: "13px 28px",
-      fontSize: "15px",
-      fontWeight: 600,
-      background: "transparent",
-      color: "var(--foreground)",
-      border: "1px solid var(--border)",
-      borderRadius: "10px",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      letterSpacing: "-0.01em",
-    }}
-    onMouseEnter={e => {
-      e.currentTarget.style.transform = "translateY(-2px)";
-      e.currentTarget.style.borderColor = "var(--accent)";
-      e.currentTarget.style.color = "var(--accent)";
-    }}
-    onMouseLeave={e => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.borderColor = "var(--border)";
-      e.currentTarget.style.color = "var(--foreground)";
-    }}
-  >
-    Explore Merge / Joins →
-  </button>
-</Link>
+            <button
+              style={{
+                padding: "13px 28px",
+                fontSize: "15px",
+                fontWeight: 600,
+                background: "transparent",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
+                borderRadius: "10px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                letterSpacing: "-0.01em",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.borderColor = "var(--border)";
+                e.currentTarget.style.color = "var(--foreground)";
+              }}
+            >
+              Explore Merge / Joins →
+            </button>
+          </Link>
           <Link href="/functions" style={{ textDecoration: "none" }}>
             <button
               style={{
@@ -210,6 +260,33 @@ export default function Home() {
               Explore Functions →
             </button>
           </Link>
+          <Link href="/proc-steps" style={{ textDecoration: "none" }}>
+            <button
+              style={{
+                padding: "13px 28px",
+                fontSize: "15px",
+                fontWeight: 600,
+                background: "transparent",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
+                borderRadius: "10px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.borderColor = "var(--border)";
+                e.currentTarget.style.color = "var(--foreground)";
+              }}
+            >
+              Explore Proc Steps →
+            </button>
+          </Link>
         </div>
       </section>
 
@@ -235,7 +312,7 @@ export default function Home() {
           {[
             { value: "13+", label: "Join Types" },
             { value: "3", label: "Function Categories" },
-            { value: "SAS & R", label: "Side by Side" },
+            { value: "4+", label: "PROC Steps" },
             { value: "Clinical", label: "Real Examples" },
           ].map((stat, i) => (
             <div
@@ -328,14 +405,7 @@ export default function Home() {
               >
                 🔗
               </div>
-              <h3
-                style={{
-                  fontSize: "17px",
-                  fontWeight: 700,
-                  margin: "0 0 10px",
-                  letterSpacing: "-0.01em",
-                }}
-              >
+              <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.01em" }}>
                 Merge / Joins
               </h3>
               <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.7, margin: "0 0 20px" }}>
@@ -389,14 +459,7 @@ export default function Home() {
               >
                 ƒ
               </div>
-              <h3
-                style={{
-                  fontSize: "17px",
-                  fontWeight: 700,
-                  margin: "0 0 10px",
-                  letterSpacing: "-0.01em",
-                }}
-              >
+              <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.01em" }}>
                 Functions
               </h3>
               <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.7, margin: "0 0 20px" }}>
@@ -411,7 +474,60 @@ export default function Home() {
             </div>
           </Link>
 
-          
+          {/* Proc Steps Card */}
+          <Link href="/proc-steps" style={{ textDecoration: "none" }}>
+            <div
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                borderRadius: "14px",
+                padding: "28px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                height: "100%",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.transform = "translateY(-3px)";
+                e.currentTarget.style.boxShadow = "0 8px 24px var(--accent-glow)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = "var(--border)";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: "var(--accent-glow)",
+                  border: "1px solid var(--accent)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "20px",
+                  marginBottom: "16px",
+                }}
+              >
+                ⚙️
+              </div>
+              <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.01em" }}>
+                Proc Steps
+              </h3>
+              <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.7, margin: "0 0 20px" }}>
+                PROC SORT, PROC SQL, PROC MEANS and more — with SAS syntax,
+                R equivalents and clinical programming examples side by side.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {["PROC SORT", "PROC SQL", "PROC MEANS", "+ more"].map(tag => (
+                  <span key={tag} className="tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+          </Link>
+
         </div>
       </section>
 
