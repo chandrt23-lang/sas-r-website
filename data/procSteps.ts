@@ -989,7 +989,7 @@ CDISC008   N
 
   exact binomial;
 
-  ods output Binomial=STAT;
+  ods output Binomial=STAT(where=(strip(NAME1) in ("XL_BIN", "XU_BIN")));
 run;`,
 
   exampleR: `library(dplyr)
@@ -1022,13 +1022,87 @@ RESP_Y    TOTAL    PROP    LCL    UCL
   outputNote1:
     "PROC FREQ EXACT BINOMIAL and R binom.test() both produce exact Clopper-Pearson confidence intervals.",
 
-  // ── Example 2 ─────────────────────────────
-  example2Title: "Example 2 — One-Sided and Two-Sided P-Value",
+// ── Example 2 ─────────────────────────────
+example2Title: "Example 2 — Clopper-Pearson 95% Confidence Interval by Sex",
 
-  example2Desc:
+example2Desc:
+  "Calculate responder proportion with exact 95% Clopper-Pearson confidence interval separately for each SEX group.",
+
+example2Input: `
+USUBJID    SEX    RESP
+CDISC001   M      Y
+CDISC002   M      Y
+CDISC003   M      N
+CDISC004   M      Y
+CDISC005   F      N
+CDISC006   F      Y
+CDISC007   F      Y
+CDISC008   F      N
+`,
+
+example2SAS: `proc sort data=ADSL;
+  by SEX;
+run;
+
+proc freq data=ADSL;
+  by SEX;
+
+  tables RESP / binomial(level='Y');
+
+  exact binomial;
+
+  ods output Binomial=STAT_SEX(where=(strip(NAME1) in ("XL_BIN", "XU_BIN")));
+run;`,
+
+example2R: `library(dplyr)
+
+STAT_SEX <- ADSL %>%
+  group_by(SEX) %>%
+  summarise(
+    RESP_Y = sum(RESP == "Y"),
+    TOTAL = n(),
+    .groups = "drop"
+  ) %>%
+  rowwise() %>%
+  mutate(
+    PROP = round(
+      RESP_Y / TOTAL * 100,
+      1
+    ),
+
+    LCL = round(
+      binom.test(
+        RESP_Y,
+        TOTAL
+      )$conf.int[1] * 100,
+      1
+    ),
+
+    UCL = round(
+      binom.test(
+        RESP_Y,
+        TOTAL
+      )$conf.int[2] * 100,
+      1
+    )
+  )`,
+
+outputTable2: `
+SEX    RESP_Y    TOTAL    PROP    LCL    UCL
+F      2         4        50.0    6.8    93.2
+M      3         4        75.0    19.4   99.4
+`,
+
+outputNote2:
+  "PROC FREQ BY SEX calculates exact Clopper-Pearson confidence intervals separately within each subgroup. In R, group_by(SEX) achieves the same result.",
+
+  // ── Example 3 ─────────────────────────────
+  example3Title: "Example 3 — One-Sided and Two-Sided P-Value",
+
+  example3Desc:
     "Perform exact binomial hypothesis test using one-sided and two-sided alternatives.",
 
-  example2Input: `
+  example3Input: `
 USUBJID    RESP
 CDISC001   Y
 CDISC002   Y
@@ -1040,7 +1114,7 @@ CDISC007   Y
 CDISC008   N
 `,
 
-  example2SAS: `proc freq data=ADSL;
+  example3SAS: `proc freq data=ADSL;
   tables RESP / binomial(p=0.5 level='Y');
 
   exact binomial;
@@ -1048,7 +1122,7 @@ CDISC008   N
   ods output BinomialTest=STAT;
 run;`,
 
-  example2R: `library(dplyr)
+  example3R: `library(dplyr)
 
 RESP_Y <- ADSL %>%
   filter(RESP == "Y") %>%
@@ -1080,15 +1154,99 @@ STAT <- tibble(
   )
 )`,
 
-  outputTable2: `
+  outputTable3: `
 TEST          PVALUE
 Two-Sided     0.7266
 One-Sided     0.3633
 `,
 
-  outputNote2:
+  outputNote3:
     "alternative='two.sided' performs two-sided hypothesis testing. alternative='greater' performs one-sided testing equivalent to testing whether response rate is greater than the null proportion.",
 
+    // ── Example 4 ─────────────────────────────
+example4Title: "Example 4 — Treatment A vs Placebo P-Value",
+
+example4Desc:
+  "Compare responder rates between treatment groups using Fisher's Exact Test.",
+
+example4Input: `
+USUBJID    TRT01A     RESP
+CDISC001   Drug A     Y
+CDISC002   Drug A     Y
+CDISC003   Drug A     N
+CDISC004   Drug A     Y
+CDISC005   Placebo    N
+CDISC006   Placebo    Y
+CDISC007   Placebo    N
+CDISC008   Placebo    N
+`,
+
+example4SAS: `proc freq data=ADSL;
+  tables TRT01A*RESP / fisher;
+
+  ods output FishersExact=STAT;
+run;`,
+
+example4R: `library(tibble)
+library(dplyr)
+
+ADSL <- tibble(
+  USUBJID = c(
+    "CDISC001",
+    "CDISC002",
+    "CDISC003",
+    "CDISC004",
+    "CDISC005",
+    "CDISC006",
+    "CDISC007",
+    "CDISC008"
+  ),
+  TRT01A = c(
+    "Drug A",
+    "Drug A",
+    "Drug A",
+    "Drug A",
+    "Placebo",
+    "Placebo",
+    "Placebo",
+    "Placebo"
+  ),
+  RESP = c(
+    "Y",
+    "Y",
+    "N",
+    "Y",
+    "N",
+    "Y",
+    "N",
+    "N"
+  )
+)
+
+TAB <- table(
+  ADSL$TRT01A,
+  ADSL$RESP
+)
+
+FT <- fisher.test(TAB)
+
+STAT <- tibble(
+  TEST = "Fisher Exact Test",
+  PVALUE = round(
+    FT$p.value,
+    4
+  )
+)
+
+STAT`,
+
+outputTable4: `
+TEST                PVALUE
+Fisher Exact Test   0.4857
+`,
+
+outputNote4:
+  "Fisher's Exact Test compares responder rates between Drug A and Placebo. PROC FREQ with the FISHER option corresponds to fisher.test() in R. This method is commonly used in clinical trial efficacy and safety analyses when sample sizes are small.",
  
   conclusion:
     "Key Takeaway:\n" +
