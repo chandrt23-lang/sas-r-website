@@ -48,6 +48,14 @@ example5R?: string;
 outputTable5?: string;
 outputNote5?: string;
 
+example6Title?: string;
+example6Desc?: string;
+example6Input?: string;
+example6SAS?: string;
+example6R?: string;
+outputTable6?: string;
+outputNote6?: string;
+
   watchOut?: string;
 
   conclusion?: string;
@@ -307,5 +315,428 @@ outputNote5:
     "• slice(1) and slice_head(n=x) in R corresponds to FIRST.\n" +
     "• slice(n()) and slice_tail(n=x) in R corresponds to LAST.\n" +
     "• Common clinical uses include baseline and endpoint derivations"
+},
+
+{
+  id: "if-then-else",
+  category: "Data Step",
+  title: "IF-THEN/ELSE",
+
+  overview:
+    "IF-THEN/ELSE is used in SAS Data Step to create or modify variables based on conditions. In R, similar logic is implemented using if_else() and case_when().",
+
+  behavior:
+    "SAS evaluates IF conditions row by row and executes the first matching condition. In R, conditional logic is commonly implemented using mutate() together with if_else() or case_when().",
+
+  sas: `data ADSL2;
+  set ADSL;
+
+  if AGE >= 65 then AGEFL = "Y";
+  else AGEFL = "N";
+run;`,
+
+  r: `library(dplyr)
+
+ADSL2 <- ADSL %>%
+  mutate(
+    AGEFL = if_else(
+      AGE >= 65,
+      "Y",
+      "N"
+    )
+  )`,
+
+  details:
+    "Conditional processing is one of the most frequently used Data Step techniques in clinical programming. It is commonly used to derive analysis flags, treatment groups, responder status, and categorization variables.",
+
+  example1Title: "Example 1 — Create AGE category Flag",
+
+  example1Desc:
+    "Create AGEFL based on age.",
+
+  example1Input: `
+USUBJID    AGE
+CDISC001   45
+CDISC002   70
+CDISC003   62
+CDISC004   35
+`,
+
+  exampleSAS: `data ADSL2;
+  set ADSL;
+  if AGE >= 65 then AGEFL = "Y";
+  else AGEFL = "N";
+run;`,
+
+  exampleR: `library(dplyr)
+
+ADSL2 <- ADSL %>%
+  mutate(
+    AGEFL = if_else(
+      AGE >= 65,
+      "Y",
+      "N"
+    )
+  )`,
+
+  outputTable1: `
+USUBJID    AGE    AGEFL
+CDISC001   45     N
+CDISC002   70     Y
+CDISC003   62     N
+CDISC004   35     N
+`,
+
+  outputNote1:
+    "if_else() is the closest equivalent to a simple IF-THEN/ELSE statement in SAS.",
+  
+  example2Title: "Example 2 — Multiple Conditions Using case_when()",
+
+example2Desc:
+  "Create age groups using multiple conditions.",
+
+example2Input: `
+USUBJID    AGE
+CDISC001   35
+CDISC002   45
+CDISC003   62
+CDISC004   70
+`,
+
+example2SAS: `data ADSL2;
+  set ADSL;
+  if AGE < 40 then AGEGR1 = "<40";
+  else if AGE < 65 then AGEGR1 = "40-64";
+  else AGEGR1 = ">=65";
+run;`,
+
+example2R: `library(dplyr)
+
+ADSL2 <- ADSL %>%
+  mutate(
+    AGEGR1 = case_when(
+      AGE < 40 ~ "<40",
+      AGE < 65 ~ "40-64",
+      TRUE ~ ">=65"
+    )
+  )`,
+
+outputTable2: `
+USUBJID    AGE    AGEGR1
+CDISC001   35     <40
+CDISC002   45     40-64
+CDISC003   62     40-64
+CDISC004   70     >=65
+`,
+
+outputNote2:
+  "case_when() is the preferred R approach when multiple IF-THEN/ELSE conditions are required.",
+
+example3Title: "Example 3 — IF-THEN/ELSE Using Admiral",
+
+example3Desc:
+  "Derive multiple variables using Admiral slice_derivation(), similar to SAS IF-THEN/ELSE DO blocks.",
+
+example3Input: `
+USUBJID    AGE
+CDISC001   45
+CDISC002   70
+CDISC003   62
+CDISC004   .
+`,
+
+example3SAS: `data ADSL2;
+  set ADSL;
+
+  if AGE >= 65 then do;
+    ELDERLYFL = "Y";
+    AGEGRP    = "65+";
+    RISKFL    = "HIGH";
+  end;
+  else if AGE < 65 then do;
+    ELDERLYFL = "N";
+    AGEGRP    = "<65";
+    RISKFL    = "LOW";
+  end;
+  else do;
+    ELDERLYFL = "";
+    AGEGRP    = "";
+    RISKFL    = "";
+  end;
+run;`,
+
+example3R: `library(admiral)
+
+ADSL2 <- slice_derivation(
+  ADSL,
+  derivation = mutate,
+
+  derivation_slice(
+    filter = AGE >= 65,
+    args = params(
+      ELDERLYFL = "Y",
+      AGEGRP    = "65+",
+      RISKFL    = "HIGH"
+    )
+  ),
+
+  derivation_slice(
+    filter = AGE < 65,
+    args = params(
+      ELDERLYFL = "N",
+      AGEGRP    = "<65",
+      RISKFL    = "LOW"
+    )
+  ),
+
+  derivation_slice(
+    filter = is.na(AGE),
+    args = params(
+      ELDERLYFL = NA_character_,
+      AGEGRP    = NA_character_,
+      RISKFL    = NA_character_
+    )
+  )
+) %>%
+  arrange(USUBJID)`,
+
+outputTable3: `
+USUBJID    AGE    ELDERLYFL    AGEGRP    RISKFL
+CDISC001   45     N            <65       LOW
+CDISC002   70     Y            65+       HIGH
+CDISC003   62     N            <65       LOW
+CDISC004   .                             
+`,
+
+outputNote3:
+  "Admiral slice_derivation() provides a SAS-like IF-THEN/ELSE framework in R and is particularly useful when deriving multiple variables from the same condition.",
+
+example4Title: "Example 4 — IF-THEN/ELSE Using sasif",
+
+example4Desc:
+  "Use the sasif package to implement SAS-style IF-THEN/ELSE DO logic directly in R.",
+
+example4Input: `
+USUBJID    AGE
+CDISC001   45
+CDISC002   70
+CDISC003   62
+CDISC004   .
+`,
+
+example4SAS: `data ADSL2;
+  set ADSL;
+
+  if AGE >= 65 then do;
+    ELDERLYFL = "Y";
+    AGEGRP    = "65+";
+    RISKFL    = "HIGH";
+  end;
+  else if AGE < 65 then do;
+    ELDERLYFL = "N";
+    AGEGRP    = "<65";
+    RISKFL    = "LOW";
+  end;
+  else do;
+    ELDERLYFL = "";
+    AGEGRP    = "";
+    RISKFL    = "";
+  end;
+run;`,
+
+example4R: `library(sasif)
+
+adsl_sasif <- data_step(
+  dm,
+
+  if_do(
+    AGE >= 65,
+    ELDERLYFL = "Y",
+    AGEGRP    = "65+",
+    RISKFL    = "HIGH"
+  ),
+
+  else_if_do(
+    AGE < 65,
+    ELDERLYFL = "N",
+    AGEGRP    = "<65",
+    RISKFL    = "LOW"
+  ),
+
+  else_do(
+    ELDERLYFL = NA,
+    AGEGRP    = NA,
+    RISKFL    = NA
+  )
+) %>%
+  arrange(USUBJID)`,
+
+outputTable4: `
+USUBJID    AGE    ELDERLYFL    AGEGRP    RISKFL
+CDISC001   45     N            <65       LOW
+CDISC002   70     Y            65+       HIGH
+CDISC003   62     N            <65       LOW
+CDISC004   .                             
+`,
+
+outputNote4:
+  "sasif provides SAS-style IF-THEN/ELSE DO syntax in R. This approach can make R code easier to learn for programmers transitioning from SAS.",
+
+example5Title: "Example 5 — Independent IF Conditions Using Admiral",
+
+example5Desc:
+  "Use restrict_derivation() to apply multiple independent IF conditions. Unlike IF-ELSE logic, each condition is evaluated separately.",
+
+example5Input: `
+USUBJID    AGE    SEX
+CDISC001   70     M
+CDISC002   45     M
+CDISC003   72     F
+CDISC004   35     F
+`,
+
+example5SAS: `data ADSL2;
+  set ADSL;
+
+  if AGE >= 65 then do;
+    ELDERLYFL = "Y";
+    CATN = 1;
+  end;
+
+  if SEX = "M" then do;
+    MALEFL = "Y";
+    SEXN = 1;
+  end;
+
+  if SEXN = 1 and
+     AGE >= 40 and
+     ELDERLYFL = "Y" then do;
+    MLFL = "Y";
+    ORD = 1;
+  end;
+run;`,
+
+example5R: `library(admiral)
+
+out_admiral <- dm %>%
+  restrict_derivation(
+    derivation = mutate,
+    args = params(
+      ELDERLYFL = "Y",
+      CATN = 1
+    ),
+    filter = AGE >= 65
+  ) %>%
+  restrict_derivation(
+    derivation = mutate,
+    args = params(
+      MALEFL = "Y",
+      SEXN = 1
+    ),
+    filter = SEX == "M"
+  ) %>%
+  restrict_derivation(
+    derivation = mutate,
+    args = params(
+      MLFL = "Y",
+      ORD = 1
+    ),
+    filter = SEXN == 1 &
+             AGE >= 40 &
+             ELDERLYFL == "Y"
+  )`,
+
+outputTable5: `
+USUBJID    AGE    SEX    ELDERLYFL    MALEFL    MLFL
+CDISC001   70     M      Y            Y         Y
+CDISC002   45     M                   Y
+CDISC003   72     F      Y
+CDISC004   35     F
+`,
+
+outputNote5:
+  "restrict_derivation() behaves like multiple independent IF statements in SAS. Each condition is evaluated separately and can update variables created by previous derivations.",
+
+example6Title: "Example 6 — Independent IF Conditions Using sasif",
+
+example6Desc:
+  "Use if_independent() to evaluate multiple standalone IF conditions similar to independent IF statements in SAS.",
+
+example6Input: `
+USUBJID    AGE    SEX
+CDISC001   70     M
+CDISC002   45     M
+CDISC003   72     F
+CDISC004   35     F
+`,
+
+example6SAS: `data ADSL2;
+  set ADSL;
+
+  if AGE >= 65 then do;
+    ELDERLYFL = "Y";
+    CATN = 1;
+  end;
+
+  if SEX = "M" then do;
+    MALEFL = "Y";
+    SEXN = 1;
+  end;
+
+  if SEXN = 1 and
+     AGE >= 40 and
+     ELDERLYFL = "Y" then do;
+    MLFL = "Y";
+    ORD = 1;
+  end;
+run;`,
+
+example6R: `library(sasif)
+
+adsl_sasif <- data_step(
+  dm,
+
+  if_independent(
+    AGE >= 65,
+    ELDERLYFL = "Y",
+    CATN = 1
+  ),
+
+  if_independent(
+    SEX == "M",
+    MALEFL = "Y",
+    SEXN = 1
+  ),
+
+  if_independent(
+    SEXN == 1 &
+    AGE >= 40 &
+    ELDERLYFL == "Y",
+    MLFL = "Y",
+    ORD = 1
+  )
+) %>%
+  arrange(USUBJID)`,
+
+outputTable6: `
+USUBJID    AGE    SEX    ELDERLYFL    MALEFL    MLFL
+CDISC001   70     M      Y            Y         Y
+CDISC002   45     M                   Y
+CDISC003   72     F      Y
+CDISC004   35     F
+`,
+
+outputNote6:
+  "if_independent() evaluates each condition independently, similar to multiple standalone IF statements in SAS. Unlike IF-ELSE logic, all conditions are checked and can update variables created by previous conditions.",
+
+conclusion:
+  "Key Takeaway:\n" +
+  "• IF-THEN/ELSE is used for conditional processing\n" +
+  "• if_else() is the closest R equivalent for simple conditions\n" +
+  "• case_when() is the preferred R approach for multiple conditions\n" +
+  "• Admiral slice_derivation() supports SAS-style conditional derivations\n" +
+  "• sasif provides SAS-like IF-THEN/ELSE DO syntax in R\n" +
+  "• if_independent() in sasif is equivalent to multiple standalone IF statements in SAS\n" +
+  "• Conditional logic is commonly used to derive analysis flags, categories, and responder status"
 }
-]
+];

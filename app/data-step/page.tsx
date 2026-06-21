@@ -610,60 +610,61 @@ escaped = escaped.replace(
             )}
           </Collapsible>
         )}
-    {/* ════════════════════════════════════════
-    EXAMPLE 5
+    {
+    /* ════════════════════════════════════════
+    EXAMPLE 6
 ════════════════════════════════════════ */}
-{selected.example5Title && (
+{selected.example6Title && (
   <Collapsible
-    title={selected.example5Title}
+    title={selected.example6Title}
     isOpen={example4Open}
     onToggle={() => setExample4Open(!example4Open)}
     badge="Example 5"
   >
-    {selected.example5Desc && (
+    {selected.example6Desc && (
       <p style={{ marginTop: 0, marginBottom: "20px", color: "var(--muted)", lineHeight: 1.75 }}>
-        {selected.example5Desc}
+        {selected.example6Desc}
       </p>
     )}
 
-    {selected.example5Input && (
+    {selected.example6Input && (
       <div style={{ marginBottom: "20px" }}>
         <SectionLabel text="Input Datasets" />
         <div className="code-wrapper">
-          <pre className="code-block">{selected.example5Input}</pre>
+          <pre className="code-block">{selected.example6Input}</pre>
         </div>
       </div>
     )}
 
     <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-      {selected.example5SAS && (
+      {selected.example6SAS && (
         <div style={{ flex: 1, minWidth: "280px" }}>
           <SectionLabel text="SAS Code" />
-          <CodeBlock code={selected.example5SAS} lang="SAS" id="ex5-sas" />
+          <CodeBlock code={selected.example6SAS} lang="SAS" id="ex5-sas" />
         </div>
       )}
 
-      {selected.example5R && (
+      {selected.example6R && (
         <div style={{ flex: 1, minWidth: "280px" }}>
           <SectionLabel text="R Code" />
-          <CodeBlock code={selected.example5R} lang="R" id="ex5-r" />
+          <CodeBlock code={selected.example6R} lang="R" id="ex5-r" />
         </div>
       )}
     </div>
 
-    {selected.outputTable5 && (
+    {selected.outputTable6 && (
       <div style={{ marginTop: "20px" }}>
         <SectionLabel text="Output Dataset" />
         <div className="code-wrapper">
-          <pre className="code-block">{selected.outputTable5}</pre>
+          <pre className="code-block">{selected.outputTable6}</pre>
         </div>
       </div>
     )}
 
-    {selected.outputNote5 && (
+    {selected.outputNote6 && (
       <div className="note-box" style={{ marginTop: "16px" }}>
         <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.7, color: "var(--note-text)" }}>
-          📝 <strong>Note: </strong>{selected.outputNote5}
+          📝 <strong>Note: </strong>{selected.outputNote6}
         </p>
       </div>
     )}
